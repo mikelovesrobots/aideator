@@ -45,7 +45,7 @@ def main():
 
     subparsers = parser.add_subparsers(title='Sub-commands', required=True)
     subparser1 = subparsers.add_parser('generate', help='Generate ')
-    subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool)')
+    subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool) also attempts to consume stdin if not provided')
     subparser1.set_defaults(func=generate_subcommand)
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')
