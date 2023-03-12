@@ -1,1 +1,1 @@
-# aideator
+# TAI (text artisan interface)
