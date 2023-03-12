@@ -37,7 +37,7 @@ def list_models_subcommand(args):
     except openai.error.AuthenticationError:
         print("Incorrect OpenAI API key provided. To reconfigure, please run:")
         print("")
-        print("  tai config")
+        print("  tai reconfigure")
         print("")
         sys.exit(1)
 
@@ -58,7 +58,7 @@ def generate_subcommand(args):
     except openai.error.AuthenticationError:
         print("Incorrect OpenAI API key provided. To reconfigure, please run:")
         print("")
-        print("  tai config")
+        print("  tai reconfigure")
         print("")
         sys.exit(1)
 
@@ -73,11 +73,11 @@ def rewrite_subcommand(args):
     except openai.error.AuthenticationError:
         print("Incorrect OpenAI API key provided. To reconfigure, please run:")
         print("")
-        print("  tai config")
+        print("  tai reconfigure")
         print("")
         sys.exit(1)
 
-def rebuild_subcommand(args):
+def reconfigure_subcommand(args):
     prompt_to_create_config_file()
 
 def main():
@@ -111,8 +111,8 @@ def main():
     list_models_parser = subparsers.add_parser('list_models', help='List OpenAI models available')
     list_models_parser.set_defaults(func=list_models_subcommand)
 
-    rebuild_parser = subparsers.add_parser('rebuild', help='Blow away configuration and re-setup tai')
-    rebuild_parser.set_defaults(func=rebuild_subcommand)
+    reconfigure_parser = subparsers.add_parser('reconfigure', help='Blow away configuration and re-setup tai')
+    reconfigure_parser.set_defaults(func=reconfigure_subcommand)
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')
     # parser.add_argument('-b', '--arg2', type=int, help='Argument 2', default=1)
