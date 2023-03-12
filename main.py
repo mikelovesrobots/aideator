@@ -2,23 +2,7 @@ import argparse
 import os
 import json
 import sys
-
-VERSION = 0.1
-
-home_dir = os.path.expanduser("~")
-config_file_path = os.path.join(home_dir, ".aideate")
-
-def write_config_file(secret_key):
-    config = {"version": VERSION, "secret_key": secret_key}
-
-    with open(config_file_path, "w") as outfile:
-        json.dump(config, outfile)
-
-def load_config_file():
-    if not os.path.exists(config_file_path):
-        return None
-    with open(config_file_path, "r") as f:
-        return json.load(f)
+from config import load_config_file, write_config_file
 
 def prompt_to_create_config_file():
     print("Welcome to AIdeate!")
