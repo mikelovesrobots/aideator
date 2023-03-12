@@ -5,11 +5,11 @@ import sys
 from config import load_config_file, write_config_file
 
 def prompt_to_create_config_file():
-    print("Welcome to AIdeate!")
+    print("Welcome to tai (text artisan interface)!")
     print("")
-    print("It looks like this is your first time running AIdeate, and we couldn't find a configuration file.")
+    print("It looks like this is your first time running tai, and we couldn't find a configuration file.")
     print("")
-    print("In order to use AIdeate, you'll need an OpenAI API key. If you don't already have one, you can sign up for one at https://platform.openai.com/account/api-keys")
+    print("In order to use tai, you'll need an OpenAI API key. If you don't already have one, you can sign up for one at https://platform.openai.com/account/api-keys")
     print("")
     print("Once you have your API key, please enter it below:")
     print("")
@@ -18,15 +18,15 @@ def prompt_to_create_config_file():
     secret_key = input().strip()
     write_config_file(secret_key)
 
-    print("Great! We've written a configuration file to ~/.aideate so you don't have to enter your API key every time you use AIdeate.")
+    print("Great! We've written a configuration file to ~/.tai so you don't have to enter your API key every time you use tai.")
     print("")
     print("You're all set up and ready to go! Here are a few example commands you can try:")
     print("")
-    print("  aideate generate \"10 names for a French swashbuckler\"")
-    print("  aideate names \"French swashbuckler\"")
-    print("  cat 'goblin dork soda' | aideate transform \"sort alphabetically\"")
+    print("  tai generate \"10 names for a French swashbuckler\"")
+    print("  tai names \"French swashbuckler\"")
+    print("  cat 'goblin dork soda' | tai transform \"sort alphabetically\"")
     print("")
-    print("Have fun exploring AIdeate!")
+    print("Have fun exploring tai!")
 
 def main():
     config = load_config_file()
@@ -35,7 +35,7 @@ def main():
         exit(0)
 
     parser = argparse.ArgumentParser(
-        prog="aideator",
+        prog="tai",
         description='generate ideas or transform text with the power of ai')
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')

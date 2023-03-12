@@ -3,7 +3,7 @@ import json
 from constants import VERSION
 
 home_dir = os.path.expanduser("~")
-config_file_path = os.path.join(home_dir, ".aideate")
+config_file_path = os.path.join(home_dir, ".tai")
 
 def write_config_file(secret_key):
     config = {"version": VERSION, "secret_key": secret_key}
