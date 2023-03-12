@@ -1,7 +1,7 @@
 import argparse
-import os
-import json
 import sys
+import openai
+import constants
 from config import load_config_file, write_config_file
 
 def prompt_to_create_config_file():
@@ -28,14 +28,50 @@ def prompt_to_create_config_file():
     print("")
     print("Have fun exploring tai!")
 
+def list_models_subcommand(args):
+    try:
+        response = openai.Model.list()
+        model_names = [model.id for model in response.data]
+        print('\n'.join(model_names))
+        sys.exit(0)
+    except openai.error.AuthenticationError:
+        print("Incorrect OpenAI API key provided. To reconfigure, please run:")
+        print("")
+        print("  tai config")
+        print("")
+        sys.exit(1)
+
 def generate_subcommand(args):
-    print(args)
+    try:
+        completion = openai.ChatCompletion.create(model=args.model, messages=[
+            {"role": "system", "content": "You are a helpful command-line program"},
+            {"role": "user", "content": "Please generate 3 numbers. No punctuation necessary."},
+            {"role": "assistant", "content": "1\n5\n8\n"},
+            {"role": "user", "content": "Please generate 5 colors. No punctuation necessary."},
+            {"role": "assistant", "content": "pink\nred\nyellow\nblue\npurple\n"},
+            {"role": "user", "content": "Please generate 3 alphabet characters. No punctuation necessary."},
+            {"role": "assistant", "content": "b\nc\nk\n"},
+            {"role": "user", "content": f"Please generate {args.num} {args.topic}. No punctuation necessary."}
+        ])
+        print(completion.choices[0].message.content.strip())
+        sys.exit(0)
+    except openai.error.AuthenticationError:
+        print("Incorrect OpenAI API key provided. To reconfigure, please run:")
+        print("")
+        print("  tai config")
+        print("")
+        sys.exit(1)
+
+def config_subcommand(args):
+    prompt_to_create_config_file()
 
 def main():
     config = load_config_file()
     if config == None:
         prompt_to_create_config_file()
         exit(0)
+
+    openai.api_key = config['secret_key']
 
     stdin = sys.stdin.read().strip() if not sys.stdin.isatty() else None
 
@@ -46,7 +82,15 @@ def main():
     subparsers = parser.add_subparsers(title='Sub-commands', required=True)
     subparser1 = subparsers.add_parser('generate', help='Generate ')
     subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool) also attempts to consume stdin if not provided')
+    subparser1.add_argument('-n', '--num', type=int, default=5, help='number of items to generate')
+    subparser1.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
     subparser1.set_defaults(func=generate_subcommand)
+
+    subparser2 = subparsers.add_parser('list_models', help='List OpenAI models available')
+    subparser2.set_defaults(func=list_models_subcommand)
+
+    subparser3 = subparsers.add_parser('config', help='Blow away configuration and setup tai')
+    subparser3.set_defaults(func=config_subcommand)
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')
     # parser.add_argument('-b', '--arg2', type=int, help='Argument 2', default=1)

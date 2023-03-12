@@ -1,1 +1,2 @@
-VERSION=0.1
+VERSION="0.1"
+DEFAULT_MODEL="gpt-3.5-turbo"
