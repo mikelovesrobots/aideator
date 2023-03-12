@@ -28,15 +28,25 @@ def prompt_to_create_config_file():
     print("")
     print("Have fun exploring tai!")
 
+def generate_subcommand(args):
+    print(args)
+
 def main():
     config = load_config_file()
     if config == None:
         prompt_to_create_config_file()
         exit(0)
 
+    stdin = sys.stdin.read().strip() if not sys.stdin.isatty() else None
+
     parser = argparse.ArgumentParser(
         prog="tai",
         description='generate ideas or transform text with the power of ai')
+
+    subparsers = parser.add_subparsers(title='Sub-commands', required=True)
+    subparser1 = subparsers.add_parser('generate', help='Generate ')
+    subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool)')
+    subparser1.set_defaults(func=generate_subcommand)
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')
     # parser.add_argument('-b', '--arg2', type=int, help='Argument 2', default=1)
@@ -52,23 +62,7 @@ def main():
     # subparser2.add_argument('-f', '--arg6', type=int, help='Argument 6', default=3)
 
     args = parser.parse_args()
-    # if args['func']:
-    #     args.func(args)
-    # else:
-        
-    #args.func(args)
-
-    # # Use the arguments
-    # # print(args.arg1)
-    # # print(args.arg2)
-    # if args.subparser_name == 'config':
-    #     print("we're in config")
-    #     # print(args.arg3)
-    #     # print(args.arg4)
-    # elif args.subparser_name == 'command2':
-    #     print("we're in command2")
-    #     # print(args.arg5)
-    #     # print(args.arg6)
+    args.func(args)
 
 if __name__ == '__main__':
     main()
