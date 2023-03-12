@@ -77,7 +77,7 @@ def rewrite_subcommand(args):
         print("")
         sys.exit(1)
 
-def config_subcommand(args):
+def rebuild_subcommand(args):
     prompt_to_create_config_file()
 
 def main():
@@ -96,11 +96,11 @@ def main():
 
     subparsers = parser.add_subparsers(title='Sub-commands', required=True)
 
-    subparser1 = subparsers.add_parser('generate', help='Generate things')
-    subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool) also attempts to consume stdin if not provided')
-    subparser1.add_argument('-n', '--num', type=int, default=5, help='number of items to generate')
-    subparser1.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
-    subparser1.set_defaults(func=generate_subcommand)
+    ideate_parser = subparsers.add_parser('generate', help='Generate things')
+    ideate_parser.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool) also attempts to consume stdin if not provided')
+    ideate_parser.add_argument('-n', '--num', type=int, default=5, help='number of items to generate')
+    ideate_parser.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
+    ideate_parser.set_defaults(func=generate_subcommand)
 
     rewrite_parser = subparsers.add_parser('rewrite', help='Rewrite text')
     rewrite_parser.add_argument('text', nargs="?", type=str, default=stdin or '', help='text to rewrite (tip: also attempts to consume stdin if not provided) so feel free to pipe text to it')
@@ -108,11 +108,11 @@ def main():
     rewrite_parser.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
     rewrite_parser.set_defaults(func=rewrite_subcommand)
 
-    subparser2 = subparsers.add_parser('list_models', help='List OpenAI models available')
-    subparser2.set_defaults(func=list_models_subcommand)
+    list_models_parser = subparsers.add_parser('list_models', help='List OpenAI models available')
+    list_models_parser.set_defaults(func=list_models_subcommand)
 
-    subparser3 = subparsers.add_parser('config', help='Blow away configuration and setup tai')
-    subparser3.set_defaults(func=config_subcommand)
+    rebuild_parser = subparsers.add_parser('rebuild', help='Blow away configuration and re-setup tai')
+    rebuild_parser.set_defaults(func=rebuild_subcommand)
     # parser.add_argument('-c', '--config', type=config_file_exists, help='path to config file', default=CONFIG_FILE_PATH)
     # parser.add_argument('-g', '--generate', type=str, help='Argument 1')
     # parser.add_argument('-b', '--arg2', type=int, help='Argument 2', default=1)
