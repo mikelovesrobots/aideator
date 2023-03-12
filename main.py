@@ -62,6 +62,21 @@ def generate_subcommand(args):
         print("")
         sys.exit(1)
 
+def rewrite_subcommand(args):
+    try:
+        completion = openai.ChatCompletion.create(model=args.model, messages=[
+            {"role": "system", "content": "You are a helpful grammar tool"},
+            {"role": "user", "content": f"Please rewrite the following to be {args.transformation}\n###\n{args.text}"}
+        ])
+        print(completion.choices[0].message.content.strip())
+        sys.exit(0)
+    except openai.error.AuthenticationError:
+        print("Incorrect OpenAI API key provided. To reconfigure, please run:")
+        print("")
+        print("  tai config")
+        print("")
+        sys.exit(1)
+
 def config_subcommand(args):
     prompt_to_create_config_file()
 
@@ -80,11 +95,18 @@ def main():
         description='generate ideas or transform text with the power of ai')
 
     subparsers = parser.add_subparsers(title='Sub-commands', required=True)
-    subparser1 = subparsers.add_parser('generate', help='Generate ')
+
+    subparser1 = subparsers.add_parser('generate', help='Generate things')
     subparser1.add_argument('topic', nargs="?", type=str, default=stdin or '', help='topic (e.g., names for an ai transformation tool) also attempts to consume stdin if not provided')
     subparser1.add_argument('-n', '--num', type=int, default=5, help='number of items to generate')
     subparser1.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
     subparser1.set_defaults(func=generate_subcommand)
+
+    rewrite_parser = subparsers.add_parser('rewrite', help='Rewrite text')
+    rewrite_parser.add_argument('text', nargs="?", type=str, default=stdin or '', help='text to rewrite (tip: also attempts to consume stdin if not provided) so feel free to pipe text to it')
+    rewrite_parser.add_argument('-t', '--transformation', type=str, default='clearer for a business casual audience', help='how to edit the text')
+    rewrite_parser.add_argument('-m', '--model', type=str, default=constants.DEFAULT_MODEL, help='openai completion model, run list_models for full list')
+    rewrite_parser.set_defaults(func=rewrite_subcommand)
 
     subparser2 = subparsers.add_parser('list_models', help='List OpenAI models available')
     subparser2.set_defaults(func=list_models_subcommand)
