@@ -3,44 +3,61 @@ import argparse
 import sys
 import openai
 import constants
-from config import load_config_file, write_config_file
+from config import load_config_file, write_config_file, NoConfigException
 
 @click.group()
 def cli():
     pass
 
 @cli.command()
-@click.argument('input', type=click.File('rt'))
-@click.argument('output', type=click.File('wt'))
-def reconfigure(input, output):
-    output.write(f"input: {input.read()}")
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+def autocorrect(input_file, output_file):
+    """This fixes common spelling and gramatical errors without changing the input text too much
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    output_file.write(f"input: {input_file.read()}")
+
+@cli.command()
+def configure():
+    click.echo("Welcome to Text Artisan Interface (tai)!")
+    click.echo("")
+    click.echo("In order to use tai, you'll need an OpenAI API key. If you don't already have one, you can sign up for one at https://platform.openai.com/account/api-keys")
+    click.echo("")
+    click.echo("Once you have your API key, please enter it below:")
+    click.echo("")
+    secret_key = click.prompt("API key", type=str).strip()
+    write_config_file(secret_key)
+
+    click.echo("Great! We've written a configuration file to ~/.tai so you don't have to enter your API key every time you use tai.")
+    click.echo("")
+    click.echo("You're all set up and ready to go! Here are a few example commands you can try:")
+    click.echo("")
+    click.echo("  [examples]")
+    click.echo("")
+    click.echo("Have fun exploring tai!")
 
 if __name__ == '__main__':
-    cli()
-
-# def prompt_to_create_config_file():
-#     print("Welcome to tai (text artisan interface)!")
-#     print("")
-#     print("It looks like this is your first time running tai, and we couldn't find a configuration file.")
-#     print("")
-#     print("In order to use tai, you'll need an OpenAI API key. If you don't already have one, you can sign up for one at https://platform.openai.com/account/api-keys")
-#     print("")
-#     print("Once you have your API key, please enter it below:")
-#     print("")
-#     print("API Key: ", end='')
-
-#     secret_key = input().strip()
-#     write_config_file(secret_key)
-
-#     print("Great! We've written a configuration file to ~/.tai so you don't have to enter your API key every time you use tai.")
-#     print("")
-#     print("You're all set up and ready to go! Here are a few example commands you can try:")
-#     print("")
-#     print("  tai generate \"10 names for a French swashbuckler\"")
-#     print("  tai names \"French swashbuckler\"")
-#     print("  cat 'goblin dork soda' | tai transform \"sort alphabetically\"")
-#     print("")
-#     print("Have fun exploring tai!")
+    try:
+        openai.api_key = load_config_file()['secret_key']
+        cli()
+    except NoConfigException:
+        click.echo("No config file found. It looks like this is your first time running tai.")
+        click.echo("")
+        click.echo("To configure the app, please run:")
+        click.echo("")
+        click.echo("  tai configure")
+        click.echo("")
+        sys.exit(1)
+    except openai.error.AuthenticationError:
+        click.echo("Incorrect OpenAI API key provided. To reconfigure, please run:")
+        click.echo("")
+        click.echo("  tai configure")
+        click.echo("")
+        sys.exit(1)
 
 # def reconfigure_subcommand(args):
 #     prompt_to_create_config_file()
