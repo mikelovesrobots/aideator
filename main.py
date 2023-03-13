@@ -19,10 +19,20 @@ def autocorrect(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
-    output_file.write(f"input: {input_file.read()}")
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": f"Please rewrite the following with corrected grammar and spelling, but otherwise, leave the text unchanged (no extra punctuation or commentary necessary).\n###\n{input_file.read()}\n"},
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
 
 @cli.command()
 def configure():
+    """Prompts the user for an OpanAI API Key and writes it to ~/.tai
+    
+    Note: this is a semi-dangerous command as it blows away any previous configuration.
+    """
     click.echo("Welcome to Text Artisan Interface (tai)!")
     click.echo("")
     click.echo("In order to use tai, you'll need an OpenAI API key. If you don't already have one, you can sign up for one at https://platform.openai.com/account/api-keys")
@@ -40,6 +50,34 @@ def configure():
     click.echo("  [examples]")
     click.echo("")
     click.echo("Have fun exploring tai!")
+
+@cli.command()
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+@click.option('-t', '--transformation', type=str, default="clearer and for a business casual audience", show_default=True, help="Transformation to apply")
+@click.option('-s', '--style', type=str, help="in the style of _____ (e.g., Patton Oswalt addressing an audience, Hemmingway)")
+def rewrite(input_file, output_file, transformation, style):
+    """This fixes common spelling and gramatical errors without changing the input text too much
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+
+    prompt = "Please rewrite the following"
+    if transformation:
+        prompt += f' to be {transformation}'
+    if style:
+        prompt += f' in the style of {style}'
+
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": f"{prompt}\n###\n{input_file.read()}"},
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
 
 if __name__ == '__main__':
     try:
