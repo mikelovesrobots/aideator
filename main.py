@@ -85,9 +85,29 @@ def ghostwrite(what, output_file):
 @cli.command()
 @click.argument('input_file', type=click.File('rt'))
 @click.argument('output_file', type=click.File('wt'))
-@click.option('-t', '--transformation', type=str, default="clearer and for a business casual audience", show_default=True, help="Transformation to apply")
+def reading_level(input_file, output_file):
+    """Describe the reading level of the text, are you targeting the audience you think you are?
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    content = f"Please analyze the written text and determine the reading difficulty of the content, then provide suggestions on how to make the text more digestible. Which audience is likely being targeted?\n###\n{input_file.read()}\n"
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": content },
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
+@cli.command()
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+@click.option('-a', '--audience', type=str, default="business casual", show_default=True, help="audience of this rewrite")
+@click.option('-g', '--goal', type=str, default="clearer and simpler", show_default=True, help="goal of this rewrite")
 @click.option('-s', '--style', type=str, help="in the style of _____ (e.g., Patton Oswalt addressing an audience, Hemmingway)")
-def rewrite(input_file, output_file, transformation, style):
+def rewrite(input_file, output_file, audience, goal, style):
     """This rewrites the sample text. It's a killer tool when you're stuck in a rewriting loop,
     never happy with how your writing is turning out.
     
@@ -97,10 +117,12 @@ def rewrite(input_file, output_file, transformation, style):
     """
 
     prompt = "Please rewrite the following"
-    if transformation:
-        prompt += f' to be {transformation}'
+    if audience:
+        prompt += f' for a {audience} audience'
     if style:
         prompt += f' in the style of {style}'
+    if goal:
+        prompt += f' with a goal of {goal}'
 
     completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
