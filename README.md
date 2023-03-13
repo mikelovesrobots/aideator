@@ -61,6 +61,12 @@ Chat with OpenAI:
 
 `tai chat my-prompt.txt output.txt`
 
+## Dependencies
+
+TAI relies on OpenAI's gpt-3.5-turbo model to function, and an OpenAI API key is needed for use. Get an API key at: https://platform.openai.com/account/api-keys
+
+As of writing, an account is free and comes with $18 of credit, which covers ~9,000 executions.
+
 ## Installation
 
 To install TAI, follow these steps:
