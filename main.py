@@ -113,6 +113,25 @@ def rewrite(input_file, output_file, transformation, style):
 @cli.command()
 @click.argument('input_file', type=click.File('rt'))
 @click.argument('output_file', type=click.File('wt'))
+def sentiment(input_file, output_file):
+    """Describe the sentiment of the text, are you expressing the mood you think you are?
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    content = f"Please describe the sentiment of the following text. Which parts are positive? Which parts are negative? What's the intensity?\n###\n{input_file.read()}\n"
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": content },
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
+@cli.command()
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
 @click.option('-l', '--length', type=str, default="one paragraph", show_default=True, help="length of the desired output (e.g., one paragraph)")
 def summarize(input_file, output_file, length):
     """Summarize long text, reducing the required time for reading.
