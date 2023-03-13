@@ -52,12 +52,44 @@ def configure():
     click.echo("Have fun exploring tai!")
 
 @cli.command()
+@click.argument('what', type=str, required=True)
+@click.argument('output_file', type=click.File('wt'))
+def ghostwrite(what, output_file):
+    """This ghostwrites text on a particular theme from scratch
+    
+    \b
+    Examples:
+      tai ghostwrite "a ted talk on the power to going to sleep early" article.txt
+      tai ghostwrite "a joke with a twist ending on getting lost in the supermarket" -
+      tai ghostwrite "an outline of an essay on how AI can be an assistive device for the neurodiverse" -
+
+    \b
+    WHAT should contain what you want to generate and on what topic. Some examples:
+    * "an article on the five ideals of devops"
+    * "a paragraph describing a dungeons and dragons barbarian raised by wolves"
+
+    \b
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+
+    prompt = f"Please generate {what}"
+
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": prompt},
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
+@cli.command()
 @click.argument('input_file', type=click.File('rt'))
 @click.argument('output_file', type=click.File('wt'))
 @click.option('-t', '--transformation', type=str, default="clearer and for a business casual audience", show_default=True, help="Transformation to apply")
 @click.option('-s', '--style', type=str, help="in the style of _____ (e.g., Patton Oswalt addressing an audience, Hemmingway)")
 def rewrite(input_file, output_file, transformation, style):
-    """This fixes common spelling and gramatical errors without changing the input text too much
+    """This rewrites the sample text. It's a killer tool when you're stuck in a rewriting loop,
+    never happy with how your writing is turning out.
     
     \b
     INPUT_FILE should be an input filename or - for stdin.
@@ -73,6 +105,26 @@ def rewrite(input_file, output_file, transformation, style):
     completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": f"{prompt}\n###\n{input_file.read()}"},
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
+@cli.command()
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+@click.option('-l', '--length', type=str, default="one paragraph", show_default=True, help="length of the desired output (e.g., one paragraph)")
+def summarize(input_file, output_file, length):
+    """Summarize long text, reducing the required time for reading.
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    content = f"Please write {length} summarizing the following text.\n###\n{input_file.read()}\n"
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": content },
     ])
     
     result = completion.choices[0].message.content

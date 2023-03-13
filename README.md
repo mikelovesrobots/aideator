@@ -1,17 +1,17 @@
 # Text Artisan Interface (TAI)
 
-Text Artisan Interface is an open-source AI-powered CLI tool that offers a wide range of text transformation capabilities to assist individuals with anxiety, ADHD, or even neurotypical individuals who may struggle with writing-related tasks. With its user-friendly interface, this tool helps users save time and effort, making writing tasks much more manageable. Its aim is to be effective in aiding users in their writing needs.
+Text Artisan Interface (TAI) is an AI-powered CLI tool designed to assist individuals with writing-related tasks through features such as autocorrect, rewriting, ghostwriting, summarization, emotion detection, reading level adjustment, and more, all while offering a user-friendly interface to save time and effort. TAI is open source, easy to install, and can be used through the command line or by piping from stdin, allowing for flexible use.
 
 ## Description
 
 This tool is highly skilled in the following areas:
 
-  - **Autocorrect**: similar to the autocorrect feature on smartphones, but more powerful. This fixes spelling common spelling and gramatical errors.
-	- **Rewrite**: completely rewrite a stream-of-consciousness text into a coherent message.
-	- **Ghostwrite**: generate text on a particular theme from scratch (e.g., write a ted talk on the power of going to bed early, or write a linked-in recommendation for my colleague.)
-  - **Summarization**: quickly summarize long texts, reducing the required time for reading.
-	- **Emotion Detection**: what's the sentiment of the text? This helps users adjust their tone to a suitable range.
-	- **Reading Level Adjustment**: analyze the written text and determine the reading difficulty of the content, then provide suggestions on how to make the text more digestible.
+* **Autocorrect**: similar to the autocorrect feature on smartphones, but more powerful. This fixes spelling common spelling and gramatical errors.
+* **Rewrite**: completely rewrite a stream-of-consciousness text into a coherent message.
+* **Ghostwrite**: generate text on a particular theme from scratch (e.g., write a ted talk on the power of going to bed early, or write a linked-in recommendation for my colleague.)
+* **Summarization**: quickly summarize long texts, reducing the required time for reading.
+* **Emotion Detection**: what's the sentiment of the text? This helps users adjust their tone to a suitable range.
+* **Reading Level Adjustment**: analyze the written text and determine the reading difficulty of the content, then provide suggestions on how to make the text more digestible.
 
 ## Synopsis
 
