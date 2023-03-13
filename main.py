@@ -28,6 +28,24 @@ def autocorrect(input_file, output_file):
     output_file.write(result)
 
 @cli.command()
+@click.argument('input_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+def chat(input_file, output_file):
+    """Say anything to OpenAI's GPT3.5 model. Use this whenever one of the templates isn't doing it for you.
+    
+    \b
+    INPUT_FILE should be an input filename or - for stdin.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": input_file.read()},
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+
+@cli.command()
 def configure():
     """Prompts the user for an OpanAI API Key and writes it to ~/.tai
     

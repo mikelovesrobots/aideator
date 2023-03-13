@@ -47,7 +47,7 @@ Summarize long documents:
 
 Summarize docs to just a project title:
 
-`tai summarize long-essay.txt output.txt --length="project title"`
+`tai summarize README.md output.txt --length="project title"`
 
 Determine the sentiment of the text:
 
@@ -59,7 +59,7 @@ Determine the reading level of the text:
 
 Chat with OpenAI:
 
-`tai chat "What's a famous unsolved murder?" output.txt`
+`tai chat my-prompt.txt output.txt`
 
 ## Installation
 
