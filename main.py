@@ -29,6 +29,7 @@ def configure():
     click.echo("")
     click.echo("Once you have your API key, please enter it below:")
     click.echo("")
+
     secret_key = click.prompt("API key", type=str).strip()
     write_config_file(secret_key)
 
