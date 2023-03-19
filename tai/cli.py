@@ -189,7 +189,7 @@ def summarize(input_file, output_file, length):
     result = completion.choices[0].message.content
     output_file.write(result)
 
-def main():
+def cli():
     try:
         openai.api_key = load_config_file()['secret_key']
         cli()
@@ -209,4 +209,4 @@ def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    main()
+    cli()
