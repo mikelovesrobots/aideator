@@ -13,7 +13,7 @@ setup(name='tai',
     packages=['tai'],
     zip_safe=False,
     entry_points={
-        'console_scripts': [ 'tai = tai:cli' ],
+        'console_scripts': [ 'tai = tai:main' ],
     },
     install_requires=requirements
 )

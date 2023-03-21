@@ -2,8 +2,8 @@ import click
 import argparse
 import sys
 import openai
-import constants
-from config import load_config_file, write_config_file, NoConfigException
+from .constants import DEFAULT_MODEL
+from .config import load_config_file, write_config_file, NoConfigException
 
 @click.group()
 def cli():
@@ -19,7 +19,7 @@ def autocorrect(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": f"Please rewrite the following with corrected grammar and spelling, but otherwise, leave the text unchanged (no extra punctuation or commentary necessary).\n###\n{input_file.read()}\n"},
     ])
@@ -37,7 +37,7 @@ def chat(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": input_file.read()},
     ])
@@ -92,7 +92,7 @@ def ghostwrite(what, output_file):
 
     prompt = f"Please generate {what}"
 
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": prompt},
     ])
@@ -111,7 +111,7 @@ def reading_level(input_file, output_file):
     OUTPUT_FILE should be an output filename or - for stdout.
     """
     content = f"Please analyze the written text and determine the reading difficulty of the content, then provide suggestions on how to make the text more digestible. Which audience is likely being targeted?\n###\n{input_file.read()}\n"
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": content },
     ])
@@ -142,7 +142,7 @@ def rewrite(input_file, output_file, audience, goal, style):
     if goal:
         prompt += f' with a goal of {goal}'
 
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": f"{prompt}\n###\n{input_file.read()}"},
     ])
@@ -161,7 +161,7 @@ def sentiment(input_file, output_file):
     OUTPUT_FILE should be an output filename or - for stdout.
     """
     content = f"Please describe the sentiment of the following text. Which parts are positive? Which parts are negative? What's the intensity?\n###\n{input_file.read()}\n"
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": content },
     ])
@@ -181,7 +181,7 @@ def summarize(input_file, output_file, length):
     OUTPUT_FILE should be an output filename or - for stdout.
     """
     content = f"Please write {length} summarizing the following text.\n###\n{input_file.read()}\n"
-    completion = openai.ChatCompletion.create(model=constants.DEFAULT_MODEL, messages=[
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": content },
     ])
@@ -189,7 +189,7 @@ def summarize(input_file, output_file, length):
     result = completion.choices[0].message.content
     output_file.write(result)
 
-def cli():
+def main():
     try:
         openai.api_key = load_config_file()['secret_key']
         cli()
@@ -209,4 +209,4 @@ def cli():
         sys.exit(1)
 
 if __name__ == '__main__':
-    cli()
+    main()
