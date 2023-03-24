@@ -63,19 +63,20 @@ Chat with OpenAI:
 
 ## Dependencies
 
-TAI relies on OpenAI's gpt-3.5-turbo model to function, and an OpenAI API key is needed for use. Get an API key at: https://platform.openai.com/account/api-keys
+TAI relies on OpenAI's gpt-3.5-turbo model to function, and thus an OpenAI API key is necessary for use. Get an API key at: https://platform.openai.com/account/api-keys
 
-As of writing, an account is free and comes with $18 of credit, which covers ~9,000 executions.
+As of writing, an account is free and comes with $18 of credit, which covers about 9,000 executions.
 
-## Installation
+## Installation (macos)
 
 To install TAI, follow these steps:
 
+
 (Note: this doesn't work yet, but soon it will)
 
-1. Install homebrew.
-2. Run `brew install tai`
-3. Get a private key from OpenAI
+1. Install [homebrew](https://brew.sh/)
+2. Run `brew install mikelovesrobots/tai/tai`
+3. Get a [private key from OpenAI](https://platform.openai.com/account/api-keys)
 3. Run `tai configure` and it will ask you to paste in your OpenAI credentials
 
 ## Development Installation
