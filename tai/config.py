@@ -1,6 +1,6 @@
 import os
 import json
-from .constants import VERSION
+from tai.constants import VERSION
 
 home_dir = os.path.expanduser("~")
 config_file_path = os.path.join(home_dir, ".tai")

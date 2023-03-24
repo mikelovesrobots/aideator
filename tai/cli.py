@@ -2,8 +2,8 @@ import click
 import argparse
 import sys
 import openai
-from .constants import DEFAULT_MODEL
-from .config import load_config_file, write_config_file, NoConfigException
+from tai.constants import DEFAULT_MODEL
+from tai.config import load_config_file, write_config_file, NoConfigException
 
 @click.group()
 def cli():
