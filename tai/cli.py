@@ -189,6 +189,28 @@ def summarize(input_file, output_file, length):
     result = completion.choices[0].message.content
     output_file.write(result)
 
+@cli.command()
+@click.argument('job_listing_file', type=click.File('rt'))
+@click.argument('resume_file', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+def candidate_check(job_listing_file, resume_file, output_file):
+    """Review a candidate's resume for fit against a job listing. On a scale of 1-10, is this job a good fit for the candidate?
+    
+    \b
+    JOB_LISTING_FILE should be an input text filename or - for stdin. Note: it's ok if it's just a cut and paste job from a webpage.
+    RESUME_FILE should be a resume textfile's filename or - for stdin. Note: it's ok if it's just a cut and paste job from a pdf.
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+    content = f"Please review the following candidate's resume against the following job listing. On a scale of 1-10, how good a fit is this candidate for the job listing with 1 being just ok and 10 being excellent. Also please explain why you gave them that score.\n###\nCANDIDATE RESUME\n###\n{resume_file.read()[:3000]}\n###\nJOB LISTING\n###\n{job_listing_file.read()[:800]}\n"
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": content },
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+    output_file.write("\n")
+
 def main():
     try:
         openai.api_key = load_config_file()['secret_key']
