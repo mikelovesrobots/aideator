@@ -4,6 +4,7 @@ import sys
 import openai
 from tai.constants import DEFAULT_MODEL
 from tai.config import load_config_file, write_config_file, NoConfigException
+from indeedjobsearch.indeedjobsearch import IndeedJobSearch
 
 @click.group()
 def cli():
@@ -232,6 +233,21 @@ def job_check(job_listing_file, resume_file, output_file):
     result = completion.choices[0].message.content
     output_file.write(result)
     output_file.write("\n")
+
+@cli.command()
+@click.argument('search', type=click.File('rt'))
+@click.argument('output_file', type=click.File('wt'))
+@click.option('-l', '--location', type=str, default="remote", show_default=True, help="location of the job (e.g., \"Seattle , WA\")")
+def job_search(search, output_file, location):
+    """Search indeed for jobs and return the results.
+    
+    \b
+    SEARCH should be an input text filename or - for stdin. (e.g., "react" or "engineering manager" or "ios developer")
+    OUTPUT_FILE should be an output filename or - for stdout.
+    """
+
+    data = IndeedJobSearch(title=search, location=location).getJobs()
+    output_file.write(data.to_string())
 
 def main():
     try:
