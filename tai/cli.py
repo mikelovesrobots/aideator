@@ -2,9 +2,8 @@ import click
 import argparse
 import sys
 import openai
-from tai.constants import DEFAULT_MODEL
-from tai.config import load_config_file, write_config_file, NoConfigException
-from indeedjobsearch.indeedjobsearch import IndeedJobSearch
+from constants import DEFAULT_MODEL
+from config import load_config_file, write_config_file, NoConfigException
 
 @click.group()
 def cli():
@@ -20,6 +19,7 @@ def autocorrect(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
     completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": f"Please rewrite the following with corrected grammar and spelling, but otherwise, leave the text unchanged (no extra punctuation or commentary necessary).\n###\n{input_file.read()}\n"},
@@ -38,6 +38,8 @@ def chat(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
+
     completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": input_file.read()},
@@ -90,6 +92,7 @@ def ghostwrite(what, output_file):
     \b
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
 
     prompt = f"Please generate {what}"
 
@@ -102,6 +105,28 @@ def ghostwrite(what, output_file):
     output_file.write(result)
 
 @cli.command()
+def models():
+    """Returns openai model names you have access to"""
+
+    openai.api_key = load_config_file()['secret_key']
+    completion = openai.Model.list()
+    print(completion.data)
+
+@cli.command()
+def summarize():
+    """Returnsa available model names.
+    """
+    openai.api_key = load_config_file()['secret_key']
+
+    content = f"Please write {length} summarizing the following text.\n###\n{input_file.read()}\n"
+    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
+        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
+        {"role": "user", "content": content },
+    ])
+    
+    result = completion.choices[0].message.content
+    output_file.write(result)
+@cli.command()
 @click.argument('input_file', type=click.File('rt'))
 @click.argument('output_file', type=click.File('wt'))
 def reading_level(input_file, output_file):
@@ -111,6 +136,8 @@ def reading_level(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
+
     content = f"Please analyze the written text and determine the reading difficulty of the content, then provide suggestions on how to make the text more digestible. Which audience is likely being targeted?\n###\n{input_file.read()}\n"
     completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
@@ -134,6 +161,7 @@ def rewrite(input_file, output_file, audience, goal, style):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
 
     prompt = "Please rewrite the following"
     if audience:
@@ -161,6 +189,8 @@ def sentiment(input_file, output_file):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
+
     content = f"Please describe the sentiment of the following text. Which parts are positive? Which parts are negative? What's the intensity?\n###\n{input_file.read()}\n"
     completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
@@ -181,6 +211,8 @@ def summarize(input_file, output_file, length):
     INPUT_FILE should be an input filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
+    openai.api_key = load_config_file()['secret_key']
+
     content = f"Please write {length} summarizing the following text.\n###\n{input_file.read()}\n"
     completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
@@ -194,66 +226,50 @@ def summarize(input_file, output_file, length):
 @click.argument('job_listing_file', type=click.File('rt'))
 @click.argument('resume_file', type=click.File('rt'))
 @click.argument('output_file', type=click.File('wt'))
-def candidate_check(job_listing_file, resume_file, output_file):
-    """Review a candidate's resume for fit against a job listing. On a scale of 1-10, is this job a good fit for the candidate?
+@click.option('-m', '--model', type=str, default=DEFAULT_MODEL, show_default=True, help="model id")
+def candidate_check(job_listing_file, resume_file, output_file, model):
+    """Review a candidate's resume for fit against a job listing. On a scale of -10 to 10, is this job a good fit for the candidate?
     
     \b
-    JOB_LISTING_FILE should be an input text filename or - for stdin. Note: it's ok if it's just a cut and paste job from a webpage.
-    RESUME_FILE should be a resume textfile's filename or - for stdin. Note: it's ok if it's just a cut and paste job from a pdf.
+    JOB_LISTING_FILE should be an input text filename or - for stdin.
+    RESUME_FILE should be a resume textfile's filename or - for stdin.
     OUTPUT_FILE should be an output filename or - for stdout.
     """
-    content = f"Please review the following candidate's resume against the following job listing. On a scale of 1-10, how good a fit is this candidate for the job listing with 1 being just ok and 10 being excellent. Also please explain why you gave them that score.\n###\nCANDIDATE RESUME\n###\n{resume_file.read()[:3000]}\n###\nJOB LISTING\n###\n{job_listing_file.read()[:800]}\n"
-    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
+    openai.api_key = load_config_file()['secret_key']
+
+    content = f"""
+    Given the following job listing summary and then following candidate summary, please rate the fit of the candidate on a scale 
+    of -10 to 10 with -10 being a poor fit, and 10 being a perfect fit for the job. Note that an underqualified or barely qualified
+    candidate would not be a particularly good fit, so please be somewhat critical. If the job listing lists certain advanced
+    technical skills as required and the candidate does not have those skills, that would indicate a very poor fit too. Also please 
+    respond in json with an object containing a fit property containing your fit score, a reason property
+    explaining why you chose that score, a underqualified boolean that indicates if they're underqualified, and an overqualified
+    boolean that indicates if they're overqualified .
+    ###
+    [JOB LISTING]
+    {job_listing_file.read()}
+    ###
+    [CANDIDATE RESUME]
+    {resume_file.read()}
+    """
+
+    completion = openai.ChatCompletion.create(model=model, messages=[
         {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
         {"role": "user", "content": content },
-    ])
+    ], temperature=0)
     
     result = completion.choices[0].message.content
     output_file.write(result)
     output_file.write("\n")
-
-@cli.command()
-@click.argument('job_listing_file', type=click.File('rt'))
-@click.argument('resume_file', type=click.File('rt'))
-@click.argument('output_file', type=click.File('wt'))
-def job_check(job_listing_file, resume_file, output_file):
-    """Review a job listing against a candidate's resume to check for fit. On a scale of 1-10, is this job a good fit for the candidate?
-    
-    \b
-    JOB_LISTING_FILE should be an input text filename or - for stdin. Note: it's ok if it's just a cut and paste job from a webpage.
-    RESUME_FILE should be a resume textfile's filename or - for stdin. Note: it's ok if it's just a cut and paste job from a pdf.
-    OUTPUT_FILE should be an output filename or - for stdout.
-    """
-    content = f"Please review the following job candidate resume and job listing. On a scale of -10 to 10, how good a fit is this job for the candidate with -10 being a poor fit, 0 being an ok fit, and 10 being excellent. Please be critical. Also please explain why you gave them that score and feel free to be critical. I'd also like you to respond in the following format:\nscore:\nexplanation:\n###\nCANDIDATE RESUME\n###\n{resume_file.read()[:3000]}\n###\nJOB LISTING\n###\n{job_listing_file.read()[:800]}\n"
-    completion = openai.ChatCompletion.create(model=DEFAULT_MODEL, messages=[
-        {"role": "system", "content": "You are a helpful and no-nonsense command-line program."},
-        {"role": "user", "content": content },
-    ])
-    
-    result = completion.choices[0].message.content
-    output_file.write(result)
-    output_file.write("\n")
-
-@cli.command()
-@click.argument('search', type=click.File('rt'))
-@click.argument('output_file', type=click.File('wt'))
-@click.option('-l', '--location', type=str, default="remote", show_default=True, help="location of the job (e.g., \"Seattle , WA\")")
-def job_search(search, output_file, location):
-    """Search indeed for jobs and return the results.
-    
-    \b
-    SEARCH should be an input text filename or - for stdin. (e.g., "react" or "engineering manager" or "ios developer")
-    OUTPUT_FILE should be an output filename or - for stdout.
-    """
-
-    data = IndeedJobSearch(title=search, location=location).getJobs()
-    output_file.write(data.to_string())
 
 def main():
     try:
-        openai.api_key = load_config_file()['secret_key']
         cli()
     except NoConfigException:
+        if sys.argv[1] == 'configure':
+            configure()
+            sys.exit(0)
+
         click.echo("No config file found. It looks like this is your first time running tai.")
         click.echo("")
         click.echo("To configure the app, please run:")
